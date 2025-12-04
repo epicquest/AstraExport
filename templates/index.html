@@ -24,6 +24,9 @@
         .parts-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .parts-table th, .parts-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         .parts-table th { background-color: #f2f2f2; }
+        .pagination { margin-top: 20px; text-align: center; }
+        .pagination a { margin: 0 10px; padding: 5px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 3px; }
+        .pagination a:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
@@ -78,5 +81,17 @@
             <p>Select an option from the menu above.</p>
         {% endif %}
     </div>
+
+    {% if result_type in ['names', 'parts'] %}
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="?page={{ page - 1 }}&per_page={{ per_page }}">Previous</a>
+        {% endif %}
+        Page {{ page }} of {{ total_pages }} ({{ total }} total items)
+        {% if page < total_pages %}
+            <a href="?page={{ page + 1 }}&per_page={{ per_page }}">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
 </body>
 </html>
