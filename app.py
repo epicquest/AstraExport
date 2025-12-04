@@ -37,7 +37,6 @@ def names():
                 astra_parser.FILENAME, start=start, limit=per_page
             )
         )
-        # For total, approximate with count_products, as most have names
         total = astra_parser.count_products(astra_parser.FILENAME)
         total_pages = (total + per_page - 1) // per_page
     except (FileNotFoundError, ValueError) as e:
