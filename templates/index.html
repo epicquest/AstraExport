@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astra Export Parser</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #333; }
+        .menu { margin-bottom: 20px; }
+        .menu a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-right: 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .menu a:hover { background-color: #0056b3; }
+        .result { border: 1px solid #ddd; padding: 20px; border-radius: 5px; background-color: #f9f9f9; }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 5px 0; border-bottom: 1px solid #eee; }
+        .parts-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .parts-table th, .parts-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .parts-table th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Astra Export Parser</h1>
+    
+    <div class="menu">
+        <a href="/count">Count Products</a>
+        <a href="/names">List Product Names</a>
+        <a href="/parts">List Spare Parts</a>
+    </div>
+
+    <div class="result">
+        {% if result_type == 'count' %}
+            <h2>Total Products: {{ data }}</h2>
+        {% elif result_type == 'names' %}
+            <h2>Product Names</h2>
+            <ul>
+                {% for product in data %}
+                    <li>
+                        {% if product.image %}
+                            <img src="{{ product.image }}" alt="{{ product.name }}" style="height: 50px; vertical-align: middle; margin-right: 10px;">
+                        {% endif %}
+                        {{ product.name }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% elif result_type == 'parts' %}
+            <h2>Spare Parts</h2>
+            {% for product, details in data.items() %}
+                <div style="display: flex; align-items: center; margin-top: 20px;">
+                    {% if details.image %}
+                        <img src="{{ details.image }}" alt="{{ product }}" style="height: 80px; margin-right: 15px;">
+                    {% endif %}
+                    <h3>{{ product }}</h3>
+                </div>
+                <table class="parts-table">
+                    <thead>
+                        <tr>
+                            <th>Part Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for part in details.parts %}
+                            <tr>
+                                <td>{{ part }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+        {% else %}
+            <p>Select an option from the menu above.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
