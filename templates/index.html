@@ -87,8 +87,11 @@
         {% if page > 1 %}
             <a href="?page={{ page - 1 }}&per_page={{ per_page }}">Previous</a>
         {% endif %}
-        Page {{ page }} of {{ total_pages }} ({{ total }} total items)
-        {% if page < total_pages %}
+        Page {{ page }}
+        {% if total %}
+            of {{ total_pages }} ({{ total }} total items)
+        {% endif %}
+        {% if has_more or (total and page < total_pages) %}
             <a href="?page={{ page + 1 }}&per_page={{ per_page }}">Next</a>
         {% endif %}
     </div>

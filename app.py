@@ -37,8 +37,9 @@ def names():
                 astra_parser.FILENAME, start=start, limit=per_page
             )
         )
-        total = astra_parser.count_products(astra_parser.FILENAME)
-        total_pages = (total + per_page - 1) // per_page
+        total = None
+        total_pages = None
+        has_more = len(product_names) == per_page
     except (FileNotFoundError, ValueError) as e:
         return f"Error: {e}", 500
     return render_template(
@@ -49,6 +50,7 @@ def names():
         per_page=per_page,
         total=total,
         total_pages=total_pages,
+        has_more=has_more,
     )
 
 
