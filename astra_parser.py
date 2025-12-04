@@ -24,36 +24,31 @@ def count_products(filename):
     return count
 
 
-def get_product_names(filename):
-    """Iterates through all products and yields dictionaries with name and image."""
+def get_product_names(filename, start=0, limit=None):
+    """Yields product name and image dicts using streaming parse."""
     path = []
+    count = 0
     for event, elem in ET.iterparse(filename, events=("start", "end")):
         if event == "start":
             path.append(elem.tag)
         elif event == "end":
             if elem.tag == "item" and len(path) >= 2 and path[-2] == "items":
-                name = elem.get("name")
-                image = elem.get("image")
-                if name:
-                    yield {"name": name, "image": image}
+                if count >= start and (limit is None or count < start + limit):
+                    name = elem.get("name")
+                    image = elem.get("image")
+                    if name:
+                        yield {"name": name, "image": image}
+                count += 1
+                if limit is not None and count >= start + limit:
+                    break
             path.pop()
             if elem.tag == "item" and path and path[-1] == "items":
                 elem.clear()
 
 
-def _extract_parts(parts_container):
-    """Helper function to extract spare parts from a parts container."""
-    spare_parts = []
-    for part in parts_container.findall("part"):
-        for part_item in part.findall("item"):
-            name = part_item.get("name")
-            if name:
-                spare_parts.append(name)
-    return spare_parts
-
-
-def get_spare_parts(filename):
-    """Yields tuples of (product_name, details) for products that have spare parts."""
+def count_spare_parts(filename):
+    """Counts the total number of products with spare parts using streaming parse."""
+    count = 0
     path = []
     for event, elem in ET.iterparse(filename, events=("start", "end")):
         if event == "start":
@@ -64,9 +59,54 @@ def get_spare_parts(filename):
                 if parts_container is not None:
                     spare_parts = _extract_parts(parts_container)
                     if spare_parts:
-                        product_name = elem.get("name") or "Unknown Product"
-                        image = elem.get("image")
-                        yield (product_name, {"parts": spare_parts, "image": image})
+                        count += 1
+            path.pop()
+            if elem.tag == "item" and path and path[-1] == "items":
+                elem.clear()
+    return count
+
+
+def _extract_parts(parts_container):
+    """Extracts list of part names from a parts container element."""
+    parts = []
+    for part in parts_container:
+        if part.tag == "part":
+            item = part.find("item")
+            if item is not None:
+                part_name = item.get("name")
+                if part_name:
+                    parts.append(part_name)
+    return parts
+
+
+def get_spare_parts(filename, start=0, limit=None):
+    """Yields (product_name, details) tuples for products with spare parts."""
+    path = []
+    count = 0
+    for event, elem in ET.iterparse(filename, events=("start", "end")):
+        if event == "start":
+            path.append(elem.tag)
+        elif event == "end":
+            if elem.tag == "item" and len(path) >= 2 and path[-2] == "items":
+                parts_container = elem.find("parts")
+                if parts_container is None:
+                    path.pop()
+                    if elem.tag == "item" and path and path[-1] == "items":
+                        elem.clear()
+                    continue
+                spare_parts = _extract_parts(parts_container)
+                if not spare_parts:
+                    path.pop()
+                    if elem.tag == "item" and path and path[-1] == "items":
+                        elem.clear()
+                    continue
+                if count >= start and (limit is None or count < start + limit):
+                    product_name = elem.get("name") or "Unknown Product"
+                    image = elem.get("image")
+                    yield (product_name, {"parts": spare_parts, "image": image})
+                count += 1
+                if limit is not None and count >= start + limit:
+                    break
             path.pop()
             if elem.tag == "item" and path and path[-1] == "items":
                 elem.clear()

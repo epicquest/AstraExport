@@ -30,9 +30,7 @@ class TestAstraParser(unittest.TestCase):
         </export>
         """
         self.xml_string = self.xml_string.strip()
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".xml", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
             f.write(self.xml_string)
             self.filename = f.name
 

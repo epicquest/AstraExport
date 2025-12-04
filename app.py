@@ -29,13 +29,16 @@ def count():
 def names():
     """Displays the list of product names."""
     try:
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
-        product_names_full = list(astra_parser.get_product_names(astra_parser.FILENAME))
-        total = len(product_names_full)
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
         start = (page - 1) * per_page
-        end = start + per_page
-        product_names = product_names_full[start:end]
+        product_names = list(
+            astra_parser.get_product_names(
+                astra_parser.FILENAME, start=start, limit=per_page
+            )
+        )
+        # For total, approximate with count_products, as most have names
+        total = astra_parser.count_products(astra_parser.FILENAME)
         total_pages = (total + per_page - 1) // per_page
     except (FileNotFoundError, ValueError) as e:
         return f"Error: {e}", 500
@@ -46,7 +49,7 @@ def names():
         page=page,
         per_page=per_page,
         total=total,
-        total_pages=total_pages
+        total_pages=total_pages,
     )
 
 
@@ -54,13 +57,15 @@ def names():
 def parts():
     """Displays the list of spare parts."""
     try:
-        page = int(request.args.get('page', 1))
-        per_page = int(request.args.get('per_page', 10))
-        spare_parts_full = list(astra_parser.get_spare_parts(astra_parser.FILENAME))
-        total = len(spare_parts_full)
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
         start = (page - 1) * per_page
-        end = start + per_page
-        spare_parts = spare_parts_full[start:end]
+        spare_parts = list(
+            astra_parser.get_spare_parts(
+                astra_parser.FILENAME, start=start, limit=per_page
+            )
+        )
+        total = astra_parser.count_spare_parts(astra_parser.FILENAME)
         total_pages = (total + per_page - 1) // per_page
     except (FileNotFoundError, ValueError) as e:
         return f"Error: {e}", 500
@@ -71,7 +76,7 @@ def parts():
         page=page,
         per_page=per_page,
         total=total,
-        total_pages=total_pages
+        total_pages=total_pages,
     )
 
 
