@@ -2,8 +2,9 @@
 Unit tests for the Astra Parser module.
 """
 
+import os
+import tempfile
 import unittest
-import xml.etree.ElementTree as ET
 
 from astra_parser import count_products, get_product_names, get_spare_parts
 
@@ -28,22 +29,31 @@ class TestAstraParser(unittest.TestCase):
           </items>
         </export>
         """
-        self.root = ET.fromstring(self.xml_string)
+        self.xml_string = self.xml_string.strip()
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".xml", delete=False
+        ) as f:
+            f.write(self.xml_string)
+            self.filename = f.name
+
+    def tearDown(self):
+        """Clean up the temporary file."""
+        os.unlink(self.filename)
 
     def test_count_products(self):
         """Test that the product count is correct."""
-        self.assertEqual(count_products(self.root), 2)
+        self.assertEqual(count_products(self.filename), 2)
 
     def test_product_names(self):
         """Test that product names are extracted correctly."""
-        products = get_product_names(self.root)
+        products = get_product_names(self.filename)
         names = [p["name"] for p in products]
         self.assertIn("Test Product 1", names)
         self.assertIn("Test Product 2", names)
 
     def test_spare_parts(self):
         """Test that spare parts are extracted correctly."""
-        parts_data = dict(get_spare_parts(self.root))
+        parts_data = dict(get_spare_parts(self.filename))
         self.assertIn("Test Product 1", parts_data)
         self.assertEqual(parts_data["Test Product 1"]["parts"], ["Part A"])
 

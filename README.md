@@ -11,7 +11,7 @@ Astra Export Parser parses an Astra Export XML file (`data/export_full.xml`) and
    1. Listing product names (with image if present)
    1. Listing spare parts per product
 1. Flask web UI (`app.py`) with routes `/`, `/count`, `/names`, `/parts`
-1. Generator-based parsing for memory efficiency
+1. Streaming XML parsing for memory efficiency on large files (e.g., 89MB+)
 1. Unit tests (`test_astra_parser.py`)
 1. Development tooling & CI (Black, isort, Ruff, Flake8, Mypy, Pylint, pre-commit, GitHub Actions)
 1. Dockerfile for containerized runs and simple start/kill scripts
@@ -99,13 +99,8 @@ pre-commit run --all-files
 
 ---
 
-## Testing
+## Deployment
 
-```bash
-python -m unittest -q
-# or
-python3 -m pytest -q
-```
+The app is optimized for low-memory usage and can be deployed to platforms like Render.com or Heroku using the provided Dockerfile. Ensure your deployment environment has sufficient memory for large XML files.
 
-
-Thanks for using Astra Export Parser! 
+---
